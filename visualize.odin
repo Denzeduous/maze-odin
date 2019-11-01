@@ -7,10 +7,7 @@ Point :: struct {x, y: u32}
 
 // Created by Tetralux. Thanks, Tetra!
 hash_point :: proc(p: Point) -> u64 {
-    hi := u64(p.x);
-    lo := u64(p.y);
-    k := (hi << 32) | lo;
-    return k;
+    return (u64(p.x) << 32) | u64(p.y);
 }
 
 // Get the header values from strings
