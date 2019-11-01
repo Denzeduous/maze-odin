@@ -1,4 +1,4 @@
 @ECHO OFF
 cls
 odin build .
-maze-odin utest/testfile.txt utest/fulltest.txt
+odin run . -- utest/testfile.txt utest/fulltest.txt

@@ -1,5 +1,6 @@
 package maze
 
+import "core:fmt"
 import "core:strings"
 import "core:strconv"
 
@@ -30,7 +31,7 @@ get_header :: proc(size, start, end: string) -> (int, int, int, int, int, int) {
 }
 
 // Loads the visualized grid. Takes in a single string and builds the visual grid from it.
-visualize :: proc(input: string, came_from: map[u64]Point) -> string {
+visualize :: proc(input: string, came_from: ^map[u64]Point) -> string {
     clean_output := clean(input);
 
     dot_splits := strings.split(clean_output, ".");   // Splitting the dots to get the individual parts
@@ -96,7 +97,7 @@ visualize :: proc(input: string, came_from: map[u64]Point) -> string {
                 // Since flags can't be walls, fill 3x3 with dots
                 for suby in y * 3 - 2..< y * 3 + 1 {
                     for subx in x * 3 - 2..< x * 3 + 1 {
-                        output_arr[(suby * (sizex * 3 + 1)) + subx] = '.';
+                        output_arr[(suby * (sizex * 3 + 1)) + subx] = '/';
                     }
                 }
 
@@ -137,13 +138,7 @@ visualize :: proc(input: string, came_from: map[u64]Point) -> string {
                         for suby in y * 3 - 2..< y * 3 + 1 {
                             for subx in x * 3 - 2..< x * 3 + 1 {
                                 if (suby == y * 3 - 1 && subx == x * 3 - 1) {
-                                    if (hash_point(Point{cast(u32)subx, cast(u32)suby}) in came_from) {
-                                        output_arr[(suby * (sizex * 3 + 1)) + subx] = 'H';
-                                    }
-
-                                    else {
-                                        output_arr[(suby * (sizex * 3 + 1)) + subx] = '.';
-                                    }
+                                    output_arr[(suby * (sizex * 3 + 1)) + subx] = '.';
                                 }
 
                                 else {
@@ -154,6 +149,31 @@ visualize :: proc(input: string, came_from: map[u64]Point) -> string {
                     }
                 }
             }
+        }
+    }
+    fmt.println(came_from);
+    curr := came_from[hash_point(Point{u32(endx), u32(endy)})];
+
+    for {
+        fmt.print("Printing point: ");
+        fmt.println(curr);
+
+        output_arr[(curr.y * 3 + 1) * (u32(sizex) * 3 + 1) + (curr.x * 3 + 1)] = '/';
+        output_arr[(curr.y * 3 + 1) * (u32(sizex) * 3 + 1) + (curr.x * 3 + 2)] = '/';
+        output_arr[(curr.y * 3 + 1) * (u32(sizex) * 3 + 1) + (curr.x * 3 + 3)] = '/';
+
+        output_arr[(curr.y * 3 + 2) * (u32(sizex) * 3 + 1) + (curr.x * 3 + 1)] = '/';
+        output_arr[(curr.y * 3 + 2) * (u32(sizex) * 3 + 1) + (curr.x * 3 + 2)] = '/';
+        output_arr[(curr.y * 3 + 2) * (u32(sizex) * 3 + 1) + (curr.x * 3 + 3)] = '/';
+
+        output_arr[(curr.y * 3 + 3) * (u32(sizex) * 3 + 1) + (curr.x * 3 + 1)] = '/';
+        output_arr[(curr.y * 3 + 3) * (u32(sizex) * 3 + 1) + (curr.x * 3 + 2)] = '/';
+        output_arr[(curr.y * 3 + 3) * (u32(sizex) * 3 + 1) + (curr.x * 3 + 3)] = '/';
+
+        curr = came_from[hash_point(curr)];
+        
+        if (is_equal(curr, Point{u32(startx), u32(starty)})) {
+            break;
         }
     }
 

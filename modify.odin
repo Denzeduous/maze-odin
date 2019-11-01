@@ -24,15 +24,15 @@ clean :: proc(input: string) -> string {
 to_point :: proc(str_arr: []string) -> []Point {
     points := make([]Point, len(str_arr));
 
-    for i in 0..< len(str_arr) {
+    for i in 0..<len(str_arr) {
         temp_str := str_arr[i];
-
         split_str := strings.split(temp_str, ",");
 
         x := cast(u32)strconv.parse_int(split_str[0]);
         y := cast(u32)strconv.parse_int(split_str[1]);
 
         points[i] = Point{x, y};
+        fmt.println(points[i]);
     }
 
     return points[:];
