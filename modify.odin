@@ -2,7 +2,6 @@ package maze
 
 import "core:strings"
 import "core:strconv"
-import "core:fmt"
 
 // Takes in a string, cleaning it
 clean :: proc(input: string) -> string {
@@ -32,7 +31,6 @@ to_point :: proc(str_arr: []string) -> []Point {
         y := cast(u32)strconv.parse_int(split_str[1]);
 
         points[i] = Point{x, y};
-        fmt.println(points[i]);
     }
 
     return points[:];

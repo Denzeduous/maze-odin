@@ -1,7 +1,5 @@
 package maze
 
-import "core:fmt"
-
 push :: proc {
     push_q,
     push_pq,
@@ -14,6 +12,12 @@ pop :: proc {
     pop_s,
 };
 
+cleanup :: proc {
+    cleanup_q,
+    cleanup_pq,
+    cleanup_s,
+};
+
 push_q :: proc(_q: ^Queue($T), value: T) {
     q := _q;
 
@@ -21,7 +25,7 @@ push_q :: proc(_q: ^Queue($T), value: T) {
     q.size += 1;
 }
 
-push_pq :: proc(pq: ^Priority_Queue($R, $T), value: R, heuristic: T) {
+push_pq :: proc(pq: ^Priority_Queue($R, $T), value: R, priority: T) {
     part1 := 0;
     part2 := len(pq.values);
     //fmt.print("Current size: ");
@@ -29,14 +33,14 @@ push_pq :: proc(pq: ^Priority_Queue($R, $T), value: R, heuristic: T) {
     if (pq.size > 0) {
         for {
             index := (part1 + part2) / 2;
-            pq_heur := pq.heuristic[index];
+            pq_heur := pq.priority[index];
 
             if (part1 != part2 && part1 != part2 - 1) {
-                if (heuristic < pq_heur) {
+                if (priority < pq_heur) {
                     part1 = index;
                 }
 
-                else if (heuristic > pq_heur) {
+                else if (priority > pq_heur) {
                     part2 = index;
                 }
 
@@ -46,8 +50,8 @@ push_pq :: proc(pq: ^Priority_Queue($R, $T), value: R, heuristic: T) {
                         copy(pq.values[index + 1:], pq.values[index:]);
                         pq.values[index] = value;
 
-                        copy(pq.heuristic[index + 1:], pq.heuristic[index:]);
-                        pq.heuristic[index] = heuristic;
+                        copy(pq.priority[index + 1:], pq.priority[index:]);
+                        pq.priority[index] = priority;
                         
                         break;
                     }
@@ -55,7 +59,7 @@ push_pq :: proc(pq: ^Priority_Queue($R, $T), value: R, heuristic: T) {
                     else {
                         //fmt.println("Got here while parts are not together and index does equal len(pq.values)");
                         append_elem(&pq.values, value);
-                        append_elem(&pq.heuristic, heuristic);
+                        append_elem(&pq.priority, priority);
                         
                         break;
                     }
@@ -68,8 +72,8 @@ push_pq :: proc(pq: ^Priority_Queue($R, $T), value: R, heuristic: T) {
                     copy(pq.values[part2 + 1:], pq.values[part2:]);
                     pq.values[part2] = value;
 
-                    copy(pq.heuristic[part2 + 1:], pq.heuristic[part2:]);
-                    pq.heuristic[part2] = heuristic;
+                    copy(pq.priority[part2 + 1:], pq.priority[part2:]);
+                    pq.priority[part2] = priority;
                     
                     break;
                 }
@@ -77,7 +81,7 @@ push_pq :: proc(pq: ^Priority_Queue($R, $T), value: R, heuristic: T) {
                 else {
                     //fmt.println("Got here while parts are together and part2 does equal len(pq.values)");
                     append_elem(&pq.values, value);
-                    append_elem(&pq.heuristic, heuristic);
+                    append_elem(&pq.priority, priority);
                     
                     break;
                 }
@@ -87,7 +91,7 @@ push_pq :: proc(pq: ^Priority_Queue($R, $T), value: R, heuristic: T) {
 
     else {
         append_elem(&pq.values, value);
-        append_elem(&pq.heuristic, heuristic);
+        append_elem(&pq.priority, priority);
         
         //fmt.println("Being initialized");
     }
@@ -108,9 +112,9 @@ pop_q :: proc(q: ^Queue($T)) -> T {
 }
 
 pop_pq :: proc(pq: ^Priority_Queue($R, $T)) -> (R, T) {
-    val, heur := pq.values[0], pq.heuristic[0];
+    val, heur := pq.values[0], pq.priority[0];
     copy(pq.values[:], pq.values[1:]);
-    copy(pq.heuristic[:], pq.heuristic[1:]);
+    copy(pq.priority[:], pq.priority[1:]);
     pq.size -= 1;
     return val, heur;
 }
@@ -120,14 +124,25 @@ pop_s :: proc(s: ^Stack($T)) -> T {
     return s.values[size];
 }
 
-clean_q :: proc(q: ^Queue($T)) {
+cleanup_q :: proc(q: ^Queue($T)) {
     delete(q.values);
     free(q);
 }
 
+cleanup_pq :: proc(pq: ^Priority_Queue($R, $T)) {
+    delete(pq.values);
+    delete(pq.priority);
+    free(pq);
+}
+
+cleanup_s :: proc(s: ^Stack($T)) {
+    delete(s.values);
+    free(s);
+}
+
 Priority_Queue :: struct(R, T: typeid) {
     values: [dynamic]R,
-    heuristic: [dynamic]T,
+    priority: [dynamic]T,
     size: int,
 }
 
